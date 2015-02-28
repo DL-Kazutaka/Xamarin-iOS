@@ -1,4 +1,11 @@
-﻿using AVFoundation;
+﻿using System;
+using System.Drawing;
+
+using AVFoundation;
+using CoreGraphics;
+using CoreMedia;
+using CoreVideo;
+using UIKit;
 
 namespace DLCamera.iOS
 {
@@ -9,19 +16,21 @@ namespace DLCamera.iOS
         {
             try
             {
+                // 取得したバッファーからイメージを作成
                 var image = ImageFromSampleBuffer(sampleBuffer);
 
-                // Do something with the image, we just stuff it in our main view.
-                CameraPreview.ImageView.BeginInvokeOnMainThread(delegate
+                // プレビュー用のビューに画像を表示
+                CameraPreviewController.previewView.BeginInvokeOnMainThread(delegate
                 {
-                    //// プレビュー表示中
-                    CameraPreview.ImageView.Image = image;
-                    CameraPreview.ImageView.Transform = CGAffineTransform.MakeRotation((float)Math.PI / 2);
-
-                    CameraPreview.ImageViewFrame.Transform = CGAffineTransform.MakeRotation((float)Math.PI / 2);
+                    //// プレビューにイメージを挿入
+                    CameraPreviewController.previewView.Image = image;
+                    // 90度回転させる
+                    CameraPreviewController.previewView.Transform = CGAffineTransform.MakeRotation((float)Math.PI / 2);
+                    // 90度回転させる
+                    CameraPreviewController.frameView.Transform = CGAffineTransform.MakeRotation((float)Math.PI / 2);
 
                     ////// ベースのサイズの取得
-                    CameraPreview.size = image.Size;
+                    //CameraPreviewController.previewView size = image.Size;
                     var size = image.Size;
                     ////// ビットマップ形式のグラフィックスコンテキストの生成
                     //UIGraphics.BeginImageContextWithOptions(size, false, UIScreen.MainScreen.Scale);
@@ -41,29 +50,31 @@ namespace DLCamera.iOS
                     //float scaleHeight = UIScreen.MainScreen.Bounds.Height / (float)dstImage.Size.Width;
                     //float scale = Math.Min(scaleWidth, scaleHeight);
 
-
-                    float scaleWidth = UIScreen.MainScreen.Bounds.Width / (float)image.Size.Height;
-                    float scaleHeight = UIScreen.MainScreen.Bounds.Height / (float)image.Size.Width;
+                    float screenWidth = (float)UIScreen.MainScreen.Bounds.Width;
+                    float screenHeight = (float)UIScreen.MainScreen.Bounds.Height;
+                    // 画面に最大限表示されるように、スケールを算出する
+                    float scaleWidth = screenWidth / (float)image.Size.Height;
+                    float scaleHeight = screenHeight / (float)image.Size.Width;
                     float scale = Math.Min(scaleWidth, scaleHeight);
 
-                    //// フレームサイズを変更
-                    CameraPreview.ImageView.Frame = new RectangleF(0, 0, size.Height * scale, size.Width * scale);
+                    //// プレビューのサイズを変更
+                    CameraPreviewController.previewView.Frame = new CGRect(0, 0, size.Height * scale, size.Width * scale);
                     //// 表示位置センターを修正
-                    CameraPreview.ImageView.Center = new PointF(UIScreen.MainScreen.Bounds.Width / 2, UIScreen.MainScreen.Bounds.Height / 2);
+                    CameraPreviewController.previewView.Center = new CGPoint(screenWidth / 2, screenHeight / 2);
 
                     //// フレームサイズを変更
-                    CameraPreview.ImageViewFrame.Frame = new RectangleF(0, 100, size.Height * scale, size.Width * scale);
+                    CameraPreviewController.frameView.Frame = new CGRect(0, 100, size.Height * scale, size.Width * scale);
                     //// 表示位置センターを修正
-                    CameraPreview.ImageViewFrame.Center = new PointF(UIScreen.MainScreen.Bounds.Width / 2, UIScreen.MainScreen.Bounds.Height / 2);
+                    CameraPreviewController.frameView.Center = new CGPoint(screenWidth / 2, screenHeight / 2);
 
                     ////// 合成画像をImageに設定する
                     ////AppDelegate.ImageView.Image = dstImage;
 
                     // 画像に合わせてボタンサイズも変更
-                    float height = (UIScreen.MainScreen.Bounds.Height - CameraPreview.ImageView.Frame.Height) / 2;
-                    CameraPreview.ButtonTake.Frame = new RectangleF((UIScreen.MainScreen.Bounds.Width - height) / 2, UIScreen.MainScreen.Bounds.Height - height, height, height);
+                    //float height = (UIScreen.MainScreen.Bounds.Height - CameraPreview.ImageView.Frame.Height) / 2;
+                    //CameraPreview.ButtonTake.Frame = new RectangleF((UIScreen.MainScreen.Bounds.Width - height) / 2, UIScreen.MainScreen.Bounds.Height - height, height, height);
                     // 表示位置センターを修正
-                    CameraPreview.ButtonTake.Center = new PointF(UIScreen.MainScreen.Bounds.Width / 2, UIScreen.MainScreen.Bounds.Height - height / 2);
+                    //CameraPreview.ButtonTake.Center = new PointF(UIScreen.MainScreen.Bounds.Width / 2, UIScreen.MainScreen.Bounds.Height - height / 2);
                 });
 
                 //
@@ -85,15 +96,15 @@ namespace DLCamera.iOS
             // Get the CoreVideo image
             using (var pixelBuffer = sampleBuffer.GetImageBuffer() as CVPixelBuffer)
             {
-                // Lock the base address
+                // バッファーをロックする
                 pixelBuffer.Lock(0);
-                // Get the number of bytes per row for the pixel buffer
+                // ピクセルバッファーの行あたりのバイト数を取得する
                 var baseAddress = pixelBuffer.BaseAddress;
-                int bytesPerRow = pixelBuffer.BytesPerRow;
-                int width = pixelBuffer.Width;
-                int height = pixelBuffer.Height;
+                int bytesPerRow = (int)pixelBuffer.BytesPerRow;
+                int width = (int)pixelBuffer.Width;
+                int height = (int)pixelBuffer.Height;
                 var flags = CGBitmapFlags.PremultipliedFirst | CGBitmapFlags.ByteOrder32Little;
-                // Create a CGImage on the RGB colorspace from the configured parameter above
+                // 上記のように構成されたパラメータからRGB色空間上のCGImageを作成
                 using (var cs = CGColorSpace.CreateDeviceRGB())
                 using (var context = new CGBitmapContext(baseAddress, width, height, 8, bytesPerRow, cs, (CGImageAlphaInfo)flags))
                 using (var cgImage = context.ToImage())

@@ -13,10 +13,10 @@ namespace DLCamera.iOS
 	partial class CameraPreviewController
 	{
 		[Outlet]
-		UIKit.UIImageView frameView { get; set; }
+		public static UIKit.UIImageView frameView { get; set; }
 
 		[Outlet]
-		UIKit.UIImageView previewView { get; set; }
+		public static UIKit.UIImageView previewView { get; set; }
 
 		[Action ("takePhoto:")]
 		partial void takePhoto (Foundation.NSObject sender);

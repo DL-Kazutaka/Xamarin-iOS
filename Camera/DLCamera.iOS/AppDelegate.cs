@@ -33,6 +33,7 @@ namespace DLCamera.iOS
 
             // If you have defined a view, add it here:
             var navigationController = new UINavigationController();
+            navigationController.PushViewController(new CameraPreviewController(), false);
              window.RootViewController  = navigationController;
 
             // make the window visible

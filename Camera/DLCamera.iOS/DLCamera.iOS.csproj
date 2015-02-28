@@ -93,6 +93,7 @@
     <InterfaceDefinition Include="CameraPreviewController_iPhone.xib" />
     <InterfaceDefinition Include="CameraPreviewController_iPad.xib" />
     <None Include="Info.plist" />
+    <Compile Include="OutputRecorder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
