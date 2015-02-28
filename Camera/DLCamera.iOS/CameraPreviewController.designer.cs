@@ -16,7 +16,7 @@ namespace DLCamera.iOS
 		UIKit.UIImageView frameView { get; set; }
 
 		[Outlet]
-		UIKit.UIView previewView { get; set; }
+		UIKit.UIImageView previewView { get; set; }
 
 		[Action ("takePhoto:")]
 		partial void takePhoto (Foundation.NSObject sender);
