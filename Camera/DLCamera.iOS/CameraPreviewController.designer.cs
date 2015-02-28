@@ -13,6 +13,9 @@ namespace DLCamera.iOS
 	partial class CameraPreviewController
 	{
 		[Outlet]
+		UIKit.UIImageView frameView { get; set; }
+
+		[Outlet]
 		UIKit.UIView previewView { get; set; }
 
 		[Action ("takePhoto:")]
@@ -23,6 +26,11 @@ namespace DLCamera.iOS
 			if (previewView != null) {
 				previewView.Dispose ();
 				previewView = null;
+			}
+
+			if (frameView != null) {
+				frameView.Dispose ();
+				frameView = null;
 			}
 		}
 	}
