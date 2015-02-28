@@ -4,6 +4,7 @@ using System.Drawing;
 
 using Foundation;
 using UIKit;
+using AVFoundation;
 
 namespace DLCamera.iOS
 {
@@ -32,6 +33,10 @@ namespace DLCamera.iOS
             base.ViewDidLoad();
 
             // Perform any additional setup after loading the view, typically from a nib.
+        }
+
+        void SetupCaptureSesseion()
+        {
         }
     }
 }
